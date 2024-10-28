@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import requests
 import json
 import re
+import csv
 
 chromedriver_autoinstaller.install()
 
@@ -25,14 +26,19 @@ def create_url_get_api(url):
     id_video = get_id_from_url(url)
     return pre_url + id_video if id_video else None
 
+
+# Get comment
 def get_information(driver):
+
+    comments_array=[]
+
     try:
         WebDriverWait(driver, 20).until(
             EC.presence_of_element_located(
                 (By.CSS_SELECTOR, "ytd-item-section-renderer#sections.style-scope.ytd-comments")
             )
         )
-        for _ in range(50): 
+        for _ in range(10): 
             driver.execute_script("window.scrollBy(0, window.innerHeight / 2);")  
             time.sleep(0.6) 
 
@@ -41,20 +47,25 @@ def get_information(driver):
         )
         
         div_comments = main_div.find_elements(By.CSS_SELECTOR, "yt-attributed-string#content-text > span.yt-core-attributed-string.yt-core-attributed-string--white-space-pre-wrap")
+
         print(f"Number of comments: {len(div_comments)}")
         for div_comment in div_comments:
             print(div_comment.text)
+            comments_array.append(div_comment.text)
+
     except Exception as e:
         print(f"Error during getting comments: {e}")
 
+    return comments_array
 
 
 def main_function(url):
     try:
         driver.get(url)
 
-        get_information(driver)
+        comments_array=get_information(driver)
 
+        # get other details
         url_api = create_url_get_api(url)
         if url_api:
             response = requests.get(url_api)
@@ -69,11 +80,24 @@ def main_function(url):
                 print(f"Can not get data from API. Error status: {response.status_code}")
         else:
             print("URL is not valid or can not extract video.")
+
+        return likes,dislikes,view_count,comments_array
+        
     except Exception as e:
-        print(f"Error in main function crawl_each_video: {e}")
-    finally:
-        driver.quit()
+        print(f"Error in main function for video URL {url}: {e}")
+        return None, None, None, []
 
 if __name__ == "__main__":
-    url = "https://www.youtube.com/watch?v=WfcnA46qkGc"
-    main_function(url)
+    urls=['https://www.youtube.com/watch?v=2Jo1So7NDXE',"https://www.youtube.com/watch?v=WfcnA46qkGc",]
+    
+    with open("../data/youtube_data.csv", mode="w", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Url","Likes", "Dislikes", "Views", "Comments"])  
+
+        for url in urls:
+            likes, dislikes, view_count, comments_array = main_function(url)
+            writer.writerow([url,likes, dislikes, view_count, comments_array])  
+
+    print("Data written to youtube_data.csv successfully.")
+
+    driver.quit()
