@@ -88,7 +88,7 @@ def main_function(url):
         return None, None, None, []
 
 if __name__ == "__main__":
-    urls=['https://www.youtube.com/watch?v=2Jo1So7NDXE',"https://www.youtube.com/watch?v=WfcnA46qkGc",]
+    urls=['https://www.youtube.com/watch?v=2Jo1So7NDXE',"https://www.youtube.com/watch?v=WfcnA46qkGc","https://www.youtube.com/watch?v=YexFEXRzsbM"]
     
     with open("../data/youtube_data.csv", mode="w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
