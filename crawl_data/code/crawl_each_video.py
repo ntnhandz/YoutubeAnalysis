@@ -10,10 +10,13 @@ import json
 import re
 import csv
 
-chromedriver_autoinstaller.install()
+def create_driver():
+    chromedriver_autoinstaller.install()
 
-service = Service()
-driver = webdriver.Chrome(service=service)
+    service = Service()
+    driver = webdriver.Chrome(service=service)
+    
+    return driver
 
 def get_id_from_url(url):
     pattern = r"v=([a-zA-Z0-9_-]+)"
@@ -61,6 +64,7 @@ def get_information(driver):
 
 def main_function(url):
     try:
+        driver=create_driver()
         driver.get(url)
 
         comments_array=get_information(driver)
