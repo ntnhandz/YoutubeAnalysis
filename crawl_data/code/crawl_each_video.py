@@ -41,7 +41,7 @@ def get_information(driver):
                 (By.CSS_SELECTOR, "ytd-item-section-renderer#sections.style-scope.ytd-comments")
             )
         )
-        for _ in range(10): 
+        for _ in range(20): 
             driver.execute_script("window.scrollBy(0, window.innerHeight / 2);")  
             time.sleep(0.6) 
 
@@ -76,32 +76,38 @@ def main_function(url):
             if response.status_code == 200:
                 data = response.json()
                 # print(json.dumps(data, indent=4))  
+                date_created=data.get("dateCreated","N/A")
                 likes = data.get('likes', 'N/A')
                 dislikes = data.get('dislikes', 'N/A')
                 view_count = data.get('viewCount', 'N/A')
-                print(f"Likes: {likes}, Unlikes: {dislikes}, Views: {view_count}")
+                rating=data.get("rating","N/A")
+                deleted=data.get("deleted","N/A")  
+                print(f"Date created: {date_created}, Likes: {likes}, Unlikes: {dislikes}, Views: {view_count}, Rating: {rating},Deleted:{deleted}")
             else:
                 print(f"Can not get data from API. Error status: {response.status_code}")
         else:
             print("URL is not valid or can not extract video.")
 
-        return likes,dislikes,view_count,comments_array
+        return date_created,likes,dislikes,view_count,rating,deleted,comments_array
         
     except Exception as e:
         print(f"Error in main function for video URL {url}: {e}")
-        return None, None, None, []
+        return None,None,None,None, None, None, []
+    
+    finally:
+        driver.quit()
 
 if __name__ == "__main__":
     urls=['https://www.youtube.com/watch?v=2Jo1So7NDXE',"https://www.youtube.com/watch?v=WfcnA46qkGc","https://www.youtube.com/watch?v=YexFEXRzsbM"]
     
     with open("../data/youtube_data.csv", mode="w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        writer.writerow(["Url","Likes", "Dislikes", "Views", "Comments"])  
+        writer.writerow(["Url","Date created","Likes", "Dislikes", "Views", "Rating","Deleted","Comments"])  
 
         for url in urls:
-            likes, dislikes, view_count, comments_array = main_function(url)
-            writer.writerow([url,likes, dislikes, view_count, comments_array])  
+            date_created,likes, dislikes, view_count, rating, deleted, comments_array = main_function(url)
+            writer.writerow([url,date_created,likes, dislikes, view_count,rating,deleted, comments_array])  
 
     print("Data written to youtube_data.csv successfully.")
 
-    driver.quit()
+   

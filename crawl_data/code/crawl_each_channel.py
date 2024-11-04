@@ -14,6 +14,13 @@ def extract_until_space(text):
         return text
     return text[:space_index]
 
+
+def extract_channelname(url):
+    if "@" in url:
+        return url.split("@")[1].split("/")[0]
+    return None
+
+
 def convert_string_to_number(text):
     text = text.replace(',', '.')
     if 'K' in text:
@@ -96,14 +103,18 @@ def get_all_videos_in_videos_page(channel_id,driver):
         main_div=driver.find_element(By.CSS_SELECTOR,"#contents.style-scope.ytd-rich-grid-renderer")
         
         all_div_a=main_div.find_elements(By.CSS_SELECTOR,"a#thumbnail.yt-simple-endpoint.inline-block.style-scope.ytd-thumbnail")
-        print(len(all_div_a))
+        
+        hrefs_arr=[]
+        #print(len(all_div_a))
         for div_a in all_div_a:
-            print(div_a.get_attribute("href"))
+            #print(div_a.get_attribute("href"))
+            hrefs_arr.append(div_a.get_attribute("href"))
        
-
+        return hrefs_arr
 
     except Exception as e:
         print(f"Error video page function: {e}")
+        return None
 
 
 
@@ -127,7 +138,8 @@ def main_function(url):
         channel_name,channel_id,channel_num_subcribers,channel_videos,channel_image=get_header_data(driver,url)
         print(channel_name,channel_id,channel_num_subcribers,channel_videos,channel_image)
 
-        get_all_videos_in_videos_page(channel_id,driver)
+        arr_hrefs = get_all_videos_in_videos_page(channel_id,driver)
+        return arr_hrefs
         
         
     except Exception as e:
