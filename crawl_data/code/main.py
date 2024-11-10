@@ -1,5 +1,6 @@
-from crawl_each_channel import main_function as crawl_channel_function,extract_channelname
-from crawl_each_video import main_function as crawl_video_function
+from channel_scraper import main_function_scrape_channel as crawl_channel_function
+from video_scraper import main_function_scrape_video as crawl_video_function
+from utils import extract_channelname
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
